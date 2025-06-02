@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Réparations - RepairApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fbeee6 0%, #e5c9b6 100%);
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #e17c3a 0%, #c97a4a 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: #fff8f1;
+            border-radius: 15px;
+            box-shadow: 0 4px 24px rgba(168, 98, 57, 0.13);
+            border: 1.5px solid #e5c9b6;
+            margin-bottom: 2rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #e17c3a 0%, #c97a4a 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #e17c3a 0%, #c97a4a 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 20px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #c97a4a 0%, #b45f06 100%);
+        }
+        .table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .table th {
+            background: #e17c3a;
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .badge.bg-warning {
+            background-color: #ffc107 !important;
+            color: #000;
+        }
+        .badge.bg-success {
+            background-color: #198754 !important;
+        }
+        .badge.bg-info {
+            background-color: #0dcaf0 !important;
+        }
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #e17c3a 0%, #c97a4a 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #e5c9b6;
+            padding: 10px 15px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #e17c3a;
+            box-shadow: 0 0 0 0.2rem rgba(225, 124, 58, 0.25);
+        }
+        .btn-action-group {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-action-group .btn {
+            padding: 5px 10px;
+            font-size: 0.875rem;
+        }
+        .text-danger {
+            color: #dc3545 !important;
+            font-weight: 600;
+        }
+        .text-success {
+            color: #198754 !important;
+            font-weight: 600;
+        }
+        .form-check-input:checked {
+            background-color: #e17c3a;
+            border-color: #e17c3a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-tools me-2"></i>
+                RepairApp
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/repairs">
+                            <i class="bi bi-wrench me-1"></i>
+                            Réparations
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light">
+                                <i class="bi bi-box-arrow-right me-1"></i>
+                                Déconnexion
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-wrench-adjustable me-2"></i>
+                    Gestion des Réparations
+                </h5>
+                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addRepairModal">
+                    <i class="bi bi-plus-lg me-1"></i>
+                    Nouvelle Réparation
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Code de Suivi</th>
+                                <th>Client</th>
+                                <th>Appareil</th>
+                                <th>Marque</th>
+                                <th>Modèle</th>
+                                <th>Description</th>
+                                <th>Coût</th>
+                                <th>Acompte</th>
+                                <th>Reste à Payer</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="repair : ${repairs}">
+                                <td>
+                                    <span th:text="${repair.trackingCode}" class="badge bg-info"></span>
+                                </td>
+                                <td th:text="${repair.clientName}"></td>
+                                <td th:text="${repair.deviceType}"></td>
+                                <td th:text="${repair.brand}"></td>
+                                <td th:text="${repair.model}"></td>
+                                <td th:text="${repair.issueDescription}"></td>
+                                <td th:text="${#numbers.formatDecimal(repair.cost, 1, 2)} + ' €'"></td>
+                                <td th:text="${#numbers.formatDecimal(repair.advance, 1, 2)} + ' €'"></td>
+                                <td>
+                                    <span th:text="${#numbers.formatDecimal(repair.remainingPayment, 1, 2)} + ' €'"
+                                          th:class="${repair.remainingPayment > 0 ? 'text-danger' : 'text-success'}">
+                                    </span>
+                                </td>
+                                <td>
+                                    <span th:text="${repair.status}"
+                                          th:class="'badge ' + (${repair.status == 'EN_COURS' ? 'bg-warning' : repair.status == 'TERMINEE' ? 'bg-success' : 'bg-info'})">
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-action-group">
+                                        <button class="btn btn-sm btn-outline-warning" th:attr="onclick=|editRepair(${repair.id})|" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" th:attr="onclick=|deleteRepair(${repair.id})|" title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" th:attr="onclick=|showTrackingInfo(${repair.id})|" title="Info">
+                                            <i class="bi bi-info-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Repair Modal -->
+        <div class="modal fade" id="addRepairModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Nouvelle Réparation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="repairForm">
+                            <input type="hidden" id="repairId">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nom du client *</label>
+                                    <input type="text" class="form-control" id="clientName" required
+                                           minlength="2" maxlength="100"
+                                           title="Le nom du client doit contenir au moins 2 caractères">
+                                    <div id="clientNameError" class="error" style="display: none;"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Téléphone du client *</label>
+                                    <input type="tel" class="form-control" id="clientPhone" required
+                                           pattern="[0-9+\s-]{8,}"
+                                           title="Le numéro de téléphone doit contenir au moins 8 chiffres">
+                                    <div id="clientPhoneError" class="error" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Type d'appareil *</label>
+                                    <input type="text" class="form-control" id="deviceType" required
+                                           minlength="2" maxlength="50"
+                                           title="Le type d'appareil doit contenir au moins 2 caractères">
+                                    <div id="deviceTypeError" class="error" style="display: none;"></div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Marque *</label>
+                                    <input type="text" class="form-control" id="brand" required
+                                           minlength="2" maxlength="50"
+                                           title="La marque doit contenir au moins 2 caractères">
+                                    <div id="brandError" class="error" style="display: none;"></div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Modèle *</label>
+                                    <input type="text" class="form-control" id="model" required
+                                           minlength="2" maxlength="50"
+                                           title="Le modèle doit contenir au moins 2 caractères">
+                                    <div id="modelError" class="error" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description du problème *</label>
+                                <textarea class="form-control" id="issueDescription" rows="3" required
+                                        minlength="10" maxlength="500"
+                                        title="La description doit contenir au moins 10 caractères"></textarea>
+                                <div id="issueDescriptionError" class="error" style="display: none;"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Coût estimé (€) *</label>
+                                    <input type="number" class="form-control" id="cost" required
+                                           min="0" step="0.01"
+                                           title="Le coût doit être un nombre positif">
+                                    <div id="costError" class="error" style="display: none;"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Acompte (€) *</label>
+                                    <input type="number" class="form-control" id="advance" required
+                                           min="0" step="0.01"
+                                           title="L'acompte doit être un nombre positif">
+                                    <div id="advanceError" class="error" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Statut *</label>
+                                <select class="form-select" id="status" required>
+                                    <option value="">Sélectionner un statut</option>
+                                    <option value="EN_ATTENTE">En attente</option>
+                                    <option value="EN_COURS">En cours</option>
+                                    <option value="TERMINEE">Terminée</option>
+                                </select>
+                                <div id="statusError" class="error" style="display: none;"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-primary" onclick="saveRepair()">Enregistrer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Repair Modal -->
+        <div class="modal fade" id="editRepairModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Modifier la Réparation
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editRepairForm">
+                            <input type="hidden" id="editRepairId">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nom du Client</label>
+                                    <input type="text" class="form-control" name="clientName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Type d'Appareil</label>
+                                    <input type="text" class="form-control" name="deviceType" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Marque</label>
+                                    <input type="text" class="form-control" name="brand" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Modèle</label>
+                                    <input type="text" class="form-control" name="model" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description du Problème</label>
+                                <textarea class="form-control" name="issueDescription" rows="3" required></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Coût Total</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.01" class="form-control" name="cost" required>
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Acompte Versé</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.01" class="form-control" name="advance" required>
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Statut</label>
+                                <select class="form-select" name="status" required>
+                                    <option value="EN_COURS">En cours</option>
+                                    <option value="TERMINEE">Terminée</option>
+                                    <option value="LIVREE">Livrée</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-primary" onclick="updateRepair()">
+                            <i class="bi bi-save me-1"></i>
+                            Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracking Info Modal -->
+        <div class="modal fade" id="trackingInfoModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Information de Suivi
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-4">Code de Suivi: <span id="modalTrackingCode" class="badge bg-info ms-2"></span></h5>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <i class="bi bi-person text-primary me-2"></i>
+                                        <strong>Client:</strong> <span id="modalClientName"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="bi bi-laptop text-primary me-2"></i>
+                                        <strong>Appareil:</strong> <span id="modalDevice"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="bi bi-check-circle text-primary me-2"></i>
+                                        <strong>Statut:</strong> <span id="modalStatus"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="bi bi-currency-euro text-primary me-2"></i>
+                                        <strong>Coût Total:</strong> <span id="modalCost"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="bi bi-cash text-primary me-2"></i>
+                                        <strong>Acompte Versé:</strong> <span id="modalAdvance"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="bi bi-calculator text-primary me-2"></i>
+                                        <strong>Reste à Payer:</strong> <span id="modalRemaining"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:src="@{/js/repairs.js}"></script>
+    <script>
+        let editingRepairId = null;
+        const repairModal = new bootstrap.Modal(document.getElementById('addRepairModal'));
+
+        function validateForm() {
+            const form = document.getElementById('repairForm');
+            const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+
+            // Réinitialiser les messages d'erreur
+            form.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    const errorDiv = document.getElementById(input.id + 'Error');
+                    if (errorDiv) {
+                        errorDiv.textContent = input.validationMessage;
+                        errorDiv.style.display = 'block';
+                    }
+                    isValid = false;
+                }
+            });
+
+            // Validation spéciale pour l'acompte et le coût
+            const cost = parseFloat(document.getElementById('cost').value);
+            const advance = parseFloat(document.getElementById('advance').value);
+
+            if (advance > cost) {
+                document.getElementById('advanceError').textContent = "L'acompte ne peut pas être supérieur au coût total";
+                document.getElementById('advanceError').style.display = 'block';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function resetForm() {
+            const form = document.getElementById('repairForm');
+            form.reset();
+            editingRepairId = null;
+            document.getElementById('modalTitle').textContent = 'Nouvelle Réparation';
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+        }
+
+        function editRepair(repairId) {
+            editingRepairId = repairId;
+            document.getElementById('modalTitle').textContent = 'Modifier la Réparation';
+            
+            fetch('/repairs/' + repairId)
+            .then(response => response.json())
+            .then(repair => {
+                document.getElementById('repairId').value = repair.id;
+                document.getElementById('clientName').value = repair.clientName;
+                document.getElementById('clientPhone').value = repair.clientPhone;
+                document.getElementById('deviceType').value = repair.deviceType;
+                document.getElementById('brand').value = repair.brand;
+                document.getElementById('model').value = repair.model;
+                document.getElementById('issueDescription').value = repair.issueDescription;
+                document.getElementById('cost').value = repair.cost;
+                document.getElementById('advance').value = repair.advance;
+                document.getElementById('status').value = repair.status;
+                
+                repairModal.show();
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la récupération des données de la réparation');
+            });
+        }
+
+        function saveRepair() {
+            if (!validateForm()) return;
+
+            const formData = {
+                clientName: document.getElementById('clientName').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                deviceType: document.getElementById('deviceType').value,
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value,
+                issueDescription: document.getElementById('issueDescription').value,
+                cost: parseFloat(document.getElementById('cost').value),
+                advance: parseFloat(document.getElementById('advance').value),
+                status: document.getElementById('status').value
+            };
+
+            const url = editingRepairId ? `/repairs/${editingRepairId}` : '/repairs';
+            const method = editingRepairId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
+                repairModal.hide();
+                location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        }
+
+        function deleteRepair(repairId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette réparation ?')) {
+                fetch('/repairs/' + repairId, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(text);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la suppression de la réparation: ' + error.message);
+                });
+            }
+        }
+
+        // Réinitialiser le formulaire quand le modal est fermé
+        document.getElementById('addRepairModal').addEventListener('hidden.bs.modal', resetForm);
+    </script>
+</body>
+</html>

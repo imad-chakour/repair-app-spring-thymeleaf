@@ -1,0 +1,207 @@
+/* Styles spécifiques à la page des réparations */
+.repairs-container {
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 2rem auto;
+}
+
+.repairs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.repairs-title {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.repairs-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.repairs-table {
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.repairs-table th {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.repairs-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.repairs-table td {
+    vertical-align: middle;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.status-pending {
+    background-color: var(--warning-color);
+    color: #000;
+}
+
+.status-in-progress {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.status-completed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.repair-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.repair-details {
+    background-color: var(--light-color);
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+}
+
+/* Styles spécifiques à la page de gestion des réparations */
+
+/* Style du modal d'ajout de réparation */
+#addRepairModal .modal-content {
+    background: #fff7f0;
+    border-radius: 12px;
+    border: none;
+}
+
+#addRepairModal .modal-header,
+#addRepairModal .modal-footer {
+    background: #ffe5cc;
+}
+
+/* Styles des formulaires */
+.form-label {
+    color: #b85c00;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: #ff9900;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #cc7a00;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #ff9900;
+    box-shadow: 0 0 0 0.2rem #ff990033;
+}
+
+/* Styles de la table des réparations */
+.table {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table thead th {
+    background-color: #ff9900;
+    color: white;
+    border: none;
+}
+
+.table tbody tr:hover {
+    background-color: #fff7f0;
+}
+
+/* Styles des badges et statuts */
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+/* Styles des boutons d'action */
+.btn-action-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-action-group .btn i {
+    margin-right: 0.25rem;
+}
+
+/* Style pour les champs masqués */
+.d-none {
+    display: none !important;
+}
+
+/* Styles des modals */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid #ffe5cc;
+}
+
+.modal-footer {
+    border-top: 1px solid #ffe5cc;
+}
+
+/* Styles des formulaires dans les modals */
+.modal .form-control,
+.modal .form-select {
+    border-radius: 8px;
+    border: 1px solid #ffe5cc;
+}
+
+.modal .form-check-input:checked {
+    background-color: #ff9900;
+    border-color: #ff9900;
+}
+
+/* Styles des messages d'erreur */
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+/* Styles responsifs */
+@media (max-width: 768px) {
+    .btn-action-group {
+        flex-direction: column;
+    }
+    
+    .table-responsive {
+        margin: 0 -15px;
+    }
+} 

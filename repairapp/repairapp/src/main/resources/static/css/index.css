@@ -1,0 +1,125 @@
+/* Styles spécifiques à la page d'inscription */
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #fbeee6 0%, #e5c9b6 100%);
+    min-height: 100vh;
+}
+
+.signup-container {
+    max-width: 480px;
+    margin: 48px auto;
+    padding: 36px 28px 28px 28px;
+    background: #fff8f1;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(168, 98, 57, 0.13), 0 1.5px 6px rgba(168, 98, 57, 0.09);
+    border: 1.5px solid #e5c9b6;
+}
+
+h2 {
+    color: #b45f06;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+label.form-label {
+    color: #b45f06;
+    font-weight: 500;
+}
+
+.form-control {
+    border-radius: 12px;
+    border: 1.5px solid #e5c9b6;
+    background: #fff;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: #e17c3a;
+    box-shadow: 0 0 0 0.2rem rgba(225, 124, 58, 0.12);
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #e17c3a 0%, #c97a4a 100%);
+    border: none;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(225, 124, 58, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover, 
+.btn-primary:focus {
+    background: linear-gradient(90deg, #d2691e 0%, #b45f06 100%);
+    box-shadow: 0 4px 16px rgba(225, 124, 58, 0.18);
+}
+
+.btn-lg {
+    padding: 0.8rem 0;
+}
+
+.d-grid {
+    gap: 0.6rem;
+}
+
+.error {
+    color: #d2691e;
+    margin-top: 5px;
+    font-size: 0.93em;
+    font-weight: 500;
+}
+
+#spinner {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.alert-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.alert {
+    border-radius: 16px;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(225, 124, 58, 0.13);
+}
+
+a {
+    color: #e17c3a;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #b45f06;
+    text-decoration: underline;
+}
+
+.text-center.mt-3 p {
+    color: #7c4a03;
+}
+
+.icon-container {
+    background: #e17c3a;
+    border-radius: 50%;
+    padding: 0.5rem 0.7rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(225, 124, 58, 0.13);
+}
+
+.icon-container i {
+    color: #fffbe6;
+}
+
+@media (max-width: 600px) {
+    .signup-container {
+        padding: 18px 8px 18px 8px;
+        margin: 18px auto;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+} 

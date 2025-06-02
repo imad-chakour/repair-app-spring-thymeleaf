@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" th:href="@{/assets/favicon.svg}">
+    <link rel="icon" type="image/x-icon" th:href="@{/assets/favicon.ico}">
+    <title>Administration - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #fbeee6 0%, #e5c9b6 100%);
+            min-height: 100vh;
+        }
+        .action-buttons {
+            white-space: nowrap;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .card {
+            background: #fff8f1;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(168, 98, 57, 0.13);
+            border: 1.5px solid #e5c9b6;
+            margin-bottom: 2rem;
+        }
+        .card-header {
+            background: #e17c3a;
+            color: white;
+            border-radius: 18px 18px 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #e17c3a 0%, #c97a4a 100%);
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(225, 124, 58, 0.08);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #d2691e 0%, #b45f06 100%);
+            box-shadow: 0 4px 16px rgba(225, 124, 58, 0.18);
+        }
+        .navbar {
+            background: linear-gradient(90deg, #e17c3a 0%, #c97a4a 100%) !important;
+            box-shadow: 0 2px 8px rgba(225, 124, 58, 0.18);
+        }
+        .stats-card {
+            background: #fff8f1;
+            border-radius: 15px;
+            box-shadow: 0 4px 24px rgba(168, 98, 57, 0.13);
+            border: 1.5px solid #e5c9b6;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: transform 0.2s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            background: #e17c3a;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .stats-icon i {
+            color: white;
+            font-size: 1.5rem;
+        }
+        .stats-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #b45f06;
+            margin-bottom: 0.5rem;
+        }
+        .stats-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin">Administration</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users-management">Utilisateurs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/shops">Magasins</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light">Déconnexion</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="stats-value" th:text="${nbReparateurs}">0</div>
+                    <div class="stats-label">Réparateurs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <div class="stats-value" th:text="${nbAdmins}">0</div>
+                    <div class="stats-label">Administrateurs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="stats-value" th:text="${shops.size()}">0</div>
+                    <div class="stats-label">Magasins</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                    <div class="stats-value" th:text="${totalRepairs ?: 0}">0</div>
+                    <div class="stats-label">Réparations totales</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Utilisateurs</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Rôle</th>
+                                        <th>Magasin</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="user : ${users}">
+                                        <td th:text="${user.fullName}"></td>
+                                        <td th:text="${user.email}"></td>
+                                        <td th:text="${user.role}"></td>
+                                        <td>
+                                            <div class="fw-bold" th:text="${nbReparateurs}"></div>
+                                            <span th:if="${user.role.name() == 'REPARATEUR'}" th:text="${user.workingShop?.name ?: '-'}"></span>
+                                            <span th:if="${user.role.name() == 'PROPRIETAIRE'}" th:text="${user.ownedShops != null and !user.ownedShops.empty} ? ${#strings.listJoin(user.ownedShops.![name], ', ')} : '-'"></span>
+                                            <div class="fw-bold" th:text="${nbAdmins}"></div>
+                                        </td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-sm btn-warning" th:onclick="'editUser(' + ${user.id} + ')'">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" th:onclick="'deleteUser(' + ${user.id} + ')'">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Magasins</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addShopModal">
+                            <i class="bi bi-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Adresse</th>
+                                        <th>Propriétaire</th>
+                                        <th>Réparateurs</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="shop : ${shops}">
+                                        <td th:text="${shop.name}"></td>
+                                        <td th:text="${shop.address}"></td>
+                                        <td th:text="${shop.owner?.fullName ?: '-'}"></td>
+                                        <td th:text="${shop.repairers != null ? shop.repairers.size() : '0'}"></td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-sm btn-warning" th:onclick="'editShop(' + ${shop.id} + ')'">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" th:onclick="'deleteShop(' + ${shop.id} + ')'">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter un utilisateur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nom complet</label>
+                            <input type="text" class="form-control" name="fullName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rôle</label>
+                            <select class="form-select" name="role" required onchange="handleRoleChange(this)">
+                                <option value="ADMINISTRATOR">Administrateur</option>
+                                <option value="PROPRIETAIRE">Propriétaire</option>
+                                <option value="REPARATEUR">Réparateur</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="shopSelectionDiv" style="display: none;">
+                            <label class="form-label">Magasin</label>
+                            <select class="form-select" name="shopId" id="shopSelect">
+                                <option value="">Sélectionnez un magasin</option>
+                                <th:block th:each="shop : ${shops}">
+                                    <option th:value="${shop.id}" th:text="${shop.name}"></option>
+                                </th:block>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="saveUser()">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Shop Modal -->
+    <div class="modal fade" id="addShopModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter un magasin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addShopForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" class="form-control" name="address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Patente</label>
+                            <input type="text" class="form-control" name="patente" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNewShop()">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Shop Modal -->
+    <div class="modal fade" id="editShopModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier un magasin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editShopForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" class="form-control" name="address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Patente</label>
+                            <input type="text" class="form-control" name="patente" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="saveShop()">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Helper function to close modals
+        function closeModal(modalId) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+            if (modal) {
+                modal.hide();
+            }
+        }
+
+        // Helper function to handle API errors
+        function handleApiError(response) {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || 'Une erreur est survenue');
+                });
+            }
+            // Check if there's content to parse
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            }
+            return Promise.resolve(); // Return empty for no content responses
+        }
+
+        function handleRoleChange(selectElement) {
+            const shopSelectionDiv = document.getElementById('shopSelectionDiv');
+            const shopSelect = document.getElementById('shopSelect');
+            
+            if (selectElement.value === 'REPARATEUR') {
+                shopSelectionDiv.style.display = 'block';
+                shopSelect.required = true;
+            } else {
+                shopSelectionDiv.style.display = 'none';
+                shopSelect.required = false;
+                shopSelect.value = '';
+            }
+        }
+
+        function editUser(userId) {
+            fetch(`/admin/users/${userId}`)
+                .then(handleApiError)
+                .then(user => {
+                    const form = document.getElementById('addUserForm');
+                    form.elements['fullName'].value = user.fullName || '';
+                    form.elements['email'].value = user.email || '';
+                    form.elements['role'].value = user.role || 'PROPRIETAIRE';
+                    form.elements['password'].value = ''; // Clear password field
+                    
+                    // Handle shop selection for repairers
+                    if (user.role === 'REPARATEUR') {
+                        document.getElementById('shopSelectionDiv').style.display = 'block';
+                        if (user.workingShop) {
+                            form.elements['shopId'].value = user.workingShop.id;
+                        }
+                    } else {
+                        document.getElementById('shopSelectionDiv').style.display = 'none';
+                    }
+                    
+                    // Update form for edit mode
+                    form.dataset.mode = 'edit';
+                    form.dataset.userId = userId;
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    alert('Erreur lors de la récupération des données: ' + error.message);
+                });
+        }
+
+        function saveUser() {
+            const form = document.getElementById('addUserForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            const isEditMode = form.dataset.mode === 'edit';
+            const userId = form.dataset.userId;
+            
+            // Validate shop selection for repairers
+            if (data.role === 'REPARATEUR' && !data.shopId) {
+                alert('Veuillez sélectionner un magasin pour le réparateur');
+                return;
+            }
+            
+            const url = isEditMode ? `/admin/users/${userId}` : '/admin/users';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            // Validate required fields
+            if (!data.fullName || !data.email || !data.role || (!isEditMode && !data.password)) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(handleApiError)
+            .then(() => {
+                closeModal('addUserModal');
+                location.reload();
+            })
+            .catch(error => {
+                alert('Erreur: ' + error.message);
+            });
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+                fetch(`/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(handleApiError)
+                .then(() => {
+                    location.reload();
+                })
+                .catch(error => {
+                    alert('Erreur lors de la suppression: ' + error.message);
+                });
+            }
+        }
+
+        // Reset form when modal is closed
+        document.getElementById('addUserModal').addEventListener('hidden.bs.modal', function () {
+            const form = document.getElementById('addUserForm');
+            form.reset();
+            delete form.dataset.mode;
+            delete form.dataset.userId;
+        });
+
+        function editShop(shopId) {
+            fetch(`/admin/shops/${shopId}`)
+                .then(response => response.json())
+                .then(shop => {
+                    const form = document.getElementById('editShopForm');
+                    form.elements['name'].value = shop.name;
+                    form.elements['address'].value = shop.address;
+                    form.elements['phone'].value = shop.phone;
+                    form.elements['email'].value = shop.email;
+                    form.elements['patente'].value = shop.patente;
+                    
+                    form.dataset.shopId = shopId;
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('editShopModal'));
+                    modal.show();
+                });
+        }
+
+        function deleteShop(shopId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce magasin ?')) {
+                fetch(`/admin/shops/${shopId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(handleApiError)
+                .then(() => {
+                    location.reload();
+                })
+                .catch(error => {
+                    alert('Erreur lors de la suppression: ' + error.message);
+                });
+            }
+        }
+
+        function saveShop() {
+            const form = document.getElementById('editShopForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            const shopId = form.dataset.shopId;
+            
+            fetch(`/admin/shops/${shopId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    response.text().then(text => alert('Erreur: ' + text));
+                }
+            });
+        }
+
+        function saveNewShop() {
+            const form = document.getElementById('addShopForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            fetch('/admin/shops', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    response.text().then(text => alert('Erreur: ' + text));
+                }
+            });
+        }
+    </script>
+</body>
+</html> 
